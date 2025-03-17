@@ -54,10 +54,12 @@ func (m *utlsCompressedCertificateMsg) unmarshal(data []byte) bool {
 }
 
 type utlsEncryptedExtensionsMsgExtraFields struct {
-	hasApplicationSettings bool
-	applicationSettings    []byte
-	echRetryConfigs        []ECHConfig
-	customExtension        []byte
+	hasApplicationSettings    bool
+	hasApplicationSettingsNew bool
+	applicationSettings       []byte
+	applicationSettingsNew    []byte
+	echRetryConfigs           []ECHConfig
+	customExtension           []byte
 }
 
 func (m *encryptedExtensionsMsg) utlsUnmarshal(extension uint16, extData cryptobyte.String) bool {
@@ -65,6 +67,9 @@ func (m *encryptedExtensionsMsg) utlsUnmarshal(extension uint16, extData cryptob
 	case utlsExtensionApplicationSettings:
 		m.utls.hasApplicationSettings = true
 		m.utls.applicationSettings = []byte(extData)
+	case utlsExtensionApplicationSettingsNew:
+		m.utls.hasApplicationSettingsNew = true
+		m.utls.applicationSettingsNew = []byte(extData)
 	case utlsExtensionECH:
 		var err error
 		m.utls.echRetryConfigs, err = UnmarshalECHConfigs([]byte(extData))
@@ -76,10 +81,12 @@ func (m *encryptedExtensionsMsg) utlsUnmarshal(extension uint16, extData cryptob
 }
 
 type utlsClientEncryptedExtensionsMsg struct {
-	raw                    []byte
-	applicationSettings    []byte
-	hasApplicationSettings bool
-	customExtension        []byte
+	raw                       []byte
+	applicationSettings       []byte
+	applicationSettingsNew    []byte
+	hasApplicationSettings    bool
+	hasApplicationSettingsNew bool
+	customExtension           []byte
 }
 
 func (m *utlsClientEncryptedExtensionsMsg) marshal() (x []byte, err error) {
@@ -95,6 +102,12 @@ func (m *utlsClientEncryptedExtensionsMsg) marshal() (x []byte, err error) {
 				extensions.AddUint16(utlsExtensionApplicationSettings)
 				extensions.AddUint16LengthPrefixed(func(msg *cryptobyte.Builder) {
 					msg.AddBytes(m.applicationSettings)
+				})
+			}
+			if m.hasApplicationSettingsNew {
+				extensions.AddUint16(utlsExtensionApplicationSettingsNew)
+				extensions.AddUint16LengthPrefixed(func(msg *cryptobyte.Builder) {
+					msg.AddBytes(m.applicationSettingsNew)
 				})
 			}
 			if len(m.customExtension) > 0 {

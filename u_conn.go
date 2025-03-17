@@ -749,9 +749,11 @@ func (c *Conn) utlsConnectionStateLocked(state *ConnectionState) {
 
 type utlsConnExtraFields struct {
 	// Application Settings (ALPS)
-	hasApplicationSettings   bool
-	peerApplicationSettings  []byte
-	localApplicationSettings []byte
+	hasApplicationSettings     bool
+	hasApplicationSettingsNew  bool
+	peerApplicationSettings    []byte
+	peerApplicationSettingsNew []byte
+	localApplicationSettings   []byte
 
 	// Encrypted Client Hello (ECH)
 	echRetryConfigs []ECHConfig
