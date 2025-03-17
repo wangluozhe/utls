@@ -124,6 +124,8 @@ type Conn struct {
 	activeCall atomic.Int32
 
 	tmp [16]byte
+
+	ClientHelloHexStream string
 }
 
 // Access to net.Conn methods.
@@ -1122,6 +1124,7 @@ func (c *Conn) unmarshalHandshakeMessage(data []byte, transcript transcriptHash)
 		m = new(helloRequestMsg)
 	case typeClientHello:
 		m = new(clientHelloMsg)
+		c.ClientHelloHexStream = fmt.Sprintf("%x", data)
 	case typeServerHello:
 		m = new(serverHelloMsg)
 	case typeNewSessionTicket:
